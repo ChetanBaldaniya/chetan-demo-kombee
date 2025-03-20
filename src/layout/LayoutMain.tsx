@@ -23,12 +23,12 @@ const LayoutMain = ({ children }: Layout) => {
   const sidebar = [
     {
       name: "User",
-      path: "/dashboard",
+      path: "/user",
       img: "../../public/multiuser.png",
     },
     {
       name: "Activity Log",
-      path: "/dashboard",
+      path: "/user",
       img: "../../public/multiuser.png",
     },
   ];

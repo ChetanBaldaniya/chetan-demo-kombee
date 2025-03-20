@@ -49,8 +49,6 @@ type ViewType = {
 };
 const Dashboard = () => {
   const { users, totalPages } = useSelector((state: RootState) => state.user);
-  const token = localStorage.getItem("access_token");
-  //currentPage,
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [viewUser, setViewUser] = useState<ViewType>({
     isOpen: false,
@@ -76,7 +74,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     getUserListingData();
-  }, [dispatch, token, currentPage, rowsPerPage, searchValue, sort, orderBy]);
+  }, [dispatch, currentPage, rowsPerPage, searchValue, sort, orderBy]);
 
   useEffect(() => {
     dispatch(fetchRoles({ page: currentPage, per_page: 10 }) as any);
@@ -106,24 +104,6 @@ const Dashboard = () => {
     }
   };
 
-  // const handlePageChange = (newPage: number) => {
-  //   dispatch(setCurrentPage(newPage));
-  // };
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setProgress((prev) => (prev < 100 ? prev + 20 : 100));
-  //   }, 400);
-
-  //   setTimeout(() => {
-  //     // setData(users)
-  //     if (users?.length) {
-  //       setLoading(false);
-  //     }
-  //   }, 400);
-
-  //   return () => clearInterval(interval);
-  // }, [users]);
 
   const handleChangePage = (newPage: number) => {
     setCurrentPage(newPage);
@@ -281,7 +261,7 @@ const Dashboard = () => {
           >
             <Download size={18} />
           </button>
-          {selectedUsers?.length > 0 && (
+          {selectedUsers?.length > 1 && (
             <button
               className="bg-blue-600 text-white rounded-md p-2"
               onClick={() => singleDeleteData("", "multiple")}

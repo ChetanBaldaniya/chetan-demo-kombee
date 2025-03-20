@@ -2,11 +2,11 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 const apiClient: AxiosInstance = axios.create({
   baseURL: 'https://interview.optimavaluepro.com/api/v1',
-  headers: {
-    // 'Content-Type': 'application/json',
-    'Content-Type': 'multipart/form-data',
-    Authorization: `Bearer ${localStorage.getItem('access_token') || ''}`,
-  },
+  // headers: {
+  //   // 'Content-Type': 'application/json',
+  //   'Content-Type': 'multipart/form-data',
+  //   Authorization: `Bearer ${localStorage.getItem('access_token') || ''}`,
+  // },
   timeout: 10000, 
 });
 
@@ -20,6 +20,11 @@ export const apiRequest = async <T = any>({ url, method = 'GET', data }: ApiRequ
   try {
     const response: AxiosResponse<T> = await apiClient({
       url,
+      headers: {
+        // 'Content-Type': 'application/json',
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${localStorage.getItem('access_token') || ''}`,
+      },
       method,
       data,
     });

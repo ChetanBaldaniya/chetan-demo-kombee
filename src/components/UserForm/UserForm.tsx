@@ -6,6 +6,7 @@ import { createNewUser, updateUserData } from '../../redux/features/userSlice';
 import { RootState } from '../../redux/store';
 import { Notifications } from '../../utils/notification';
 import { getUserDetails } from '../../services/action/user';
+import { fetchRoles } from '../../redux/features/roleSlice';
 
 interface FormData {
   name: string;
@@ -33,6 +34,7 @@ const CreateUserForm: React.FC = ()  => {
   const dispatch = useDispatch()
   const { id } = useParams<{ id: string }>();
   
+
 useEffect(()=>{
  if(id?.length){
   getUserDetails(id).then((res)=>{
@@ -45,8 +47,15 @@ useEffect(()=>{
       setValue("status", editData.status === "1" ? true : false);
   })
 }
-
 },[id])
+
+ useEffect(() => {
+  getRole()
+  }, []);
+
+  const getRole=async()=>{
+    await dispatch(fetchRoles({ page: 1, per_page: 10 }) as any)
+  }
 
   const onSubmit: SubmitHandler<FormData> = async (formData, e) => {
       const newFormData = new FormData();
@@ -111,7 +120,6 @@ useEffect(()=>{
   const handleUserNavigate = () => {
     navigate("/user")
   };
-console.log(role,"role");
 
   return (
     <div className=" p-6 rounded-lg shadow-md">

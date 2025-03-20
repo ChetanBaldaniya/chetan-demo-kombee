@@ -26,7 +26,6 @@ export const loginUser = (data: dataLogin) => (dispatch: any) => {
     })
       .then((response: any) => {
         resolve(response.data);
-        console.log(response.data, "response.data.data");
         let userData = response.data ;
         dispatch(logIn(userData));
         localStorage.setItem("access_token", userData.authorization);
