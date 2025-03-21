@@ -16,13 +16,12 @@ interface ApiRequestConfig extends AxiosRequestConfig {
   data?: Record<string, any>;
 }
 
-export const apiRequest = async <T = any>({ url, method = 'GET', data }: ApiRequestConfig): Promise<T> => {
+export const apiRequest = async <T = any>({ url, method = 'GET', data}: ApiRequestConfig): Promise<T> => {
   try {
     const response: AxiosResponse<T> = await apiClient({
       url,
       headers: {
-        // 'Content-Type': 'application/json',
-        'Content-Type': 'multipart/form-data',
+        'Content-Type': data instanceof FormData ? 'multipart/form-data' : 'application/json',
         Authorization: `Bearer ${localStorage.getItem('access_token') || ''}`,
       },
       method,

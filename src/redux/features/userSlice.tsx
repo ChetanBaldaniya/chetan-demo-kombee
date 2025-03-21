@@ -95,9 +95,9 @@ export const userSlice = createSlice({
       .addCase(fetchUsers.fulfilled, (state, action) => {
         state.loading = false;
         state.users = action.payload.data || [];
-        state.totalPages = action.payload.last_page || 1;
-        state.totalRecord = action.payload.total || 1;
-        state.perPage = action.payload.per_page || 10;
+        state.totalPages = action?.payload?.last_page ;
+        state.totalRecord = action?.payload?.total ;
+        state.perPage = action?.payload?.per_page ;
       })
       .addCase(fetchUsers.rejected, (state) => {
         state.loading = false;

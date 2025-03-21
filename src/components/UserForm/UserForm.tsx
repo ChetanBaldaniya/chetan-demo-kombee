@@ -168,7 +168,7 @@ useEffect(()=>{
         <div>
         <div className="flex items-center gap-4">
           <label>Status*</label>
-          <input {...register('status', { required: 'Status is required' })} type="checkbox" /> Active
+          <input {...register('status', { required:id?.length ? false : 'Status is required' })} type="checkbox" /> Active
         </div>
         {errors.status && <p className="text-red-500 text-sm">{errors.status.message}</p>}
         </div>

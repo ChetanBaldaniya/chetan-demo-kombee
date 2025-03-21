@@ -6,7 +6,7 @@ const InfiniteProgressBar: React.FC = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setProgress((prev) => (prev >= 100 ? 0 : prev + 1));
-    }, 20); 
+    }, 10); 
 
     return () => clearInterval(interval);
   }, []);

@@ -23,7 +23,7 @@ import SortIcon from "../../common/SortIcone/SortIcone";
 import DeleteModal from "../../common/Modal/DeleteConfirm";
 import ViewUserModal from "../../common/Modal/ViewUserModal";
 import { exportCsvFile } from "../../services/action/user";
-import InfiniteProgressBar from "../../common/PogressBar/pograss";
+import InfiniteProgressBar from "../../common/PogressBar/pogress";
 
 type DeleteId = {
   id: string[];
