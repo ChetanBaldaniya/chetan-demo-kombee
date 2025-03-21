@@ -11,7 +11,7 @@ type PaginationProps = {
 const Pagination: React.FC<PaginationProps> = ({ totalItems, rowsPerPage,handleChangeRowsPerPage, onPageChange }) => {
   const [currentPage, setCurrentPage] = useState(1);
 
-  const totalPages = Math.ceil(totalItems);
+  const totalPages = Math.ceil(totalItems / rowsPerPage);
 
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages) return;
@@ -38,16 +38,16 @@ const Pagination: React.FC<PaginationProps> = ({ totalItems, rowsPerPage,handleC
       <span>{`${(currentPage - 1) * rowsPerPage + 1}-${Math.min(currentPage * rowsPerPage, totalItems)} of ${totalItems}`}</span>
 
       <div className="flex gap-2">
-        <div onClick={() => handlePageChange(1)} className="p-2 text-teal-500">
+        <div onClick={() => handlePageChange(1)} className="p-2 text-teal-500 cursor-pointer">
           <ChevronsLeft size={18} />
         </div>
-        <div onClick={() => handlePageChange(currentPage - 1)} className="p-2 text-teal-500">
+        <div onClick={() => handlePageChange(currentPage - 1)} className="p-2 text-teal-500 cursor-pointer">
           <ChevronLeft size={18} />
         </div>
-        <div onClick={() => handlePageChange(currentPage + 1)} className="p-2 text-teal-500">
+        <div onClick={() => handlePageChange(currentPage + 1)} className="p-2 text-teal-500 cursor-pointer">
           <ChevronRight size={18} />
         </div>
-        <div onClick={() => handlePageChange(totalPages)} className="p-2 text-teal-500">
+        <div onClick={() => handlePageChange(totalPages)} className="p-2 text-teal-500 cursor-pointer">
           <ChevronsRight size={18} />
         </div>
       </div>

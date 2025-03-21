@@ -48,7 +48,7 @@ type ViewType = {
   data?: User;
 };
 const Dashboard = () => {
-  const { users, totalPages } = useSelector((state: RootState) => state.user);
+  const { users, totalRecord } = useSelector((state: RootState) => state.user);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [viewUser, setViewUser] = useState<ViewType>({
     isOpen: false,
@@ -378,7 +378,7 @@ const Dashboard = () => {
       </div>
       <div className="flex items-end  mt-4 justify-end">
         <Pagination
-          totalItems={totalPages}
+          totalItems={totalRecord}
           rowsPerPage={rowsPerPage}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
           onPageChange={handleChangePage}
