@@ -24,6 +24,7 @@ import DeleteModal from "../../common/Modal/DeleteConfirm";
 import ViewUserModal from "../../common/Modal/ViewUserModal";
 import { exportCsvFile } from "../../services/action/user";
 import InfiniteProgressBar from "../../common/PogressBar/pogress";
+import { Notifications } from "../../utils/notification";
 
 type DeleteId = {
   id: string[];
@@ -80,19 +81,26 @@ const Dashboard = () => {
     dispatch(fetchRoles({ page: currentPage, per_page: 10 }) as any);
   }, [dispatch, currentPage]);
 
-  const getUserListingData =async () => {
-    setLoading(true)
-   await dispatch(
+  const encodeValueFilter = (id: string) => {
+    const data = { role_id: [id] };
+    const jsonString = JSON.stringify(data);
+    const base64Value = btoa(jsonString);
+    return base64Value;
+  };
+
+  const getUserListingData = async () => {
+    setLoading(true);
+    await dispatch(
       fetchUsers({
         page: currentPage,
         per_page: rowsPerPage,
         search: searchValue,
-        filter,
+        filter: filter ? encodeValueFilter(filter) : "",
         sort,
         order_by: orderBy,
       }) as any
     );
-    setLoading(false)
+    setLoading(false);
   };
 
   const handleSort = (field: string) => {
@@ -103,7 +111,6 @@ const Dashboard = () => {
       setOrderBy("asc");
     }
   };
-
 
   const handleChangePage = (newPage: number) => {
     setCurrentPage(newPage);
@@ -128,22 +135,29 @@ const Dashboard = () => {
     navigate(`/user/edit/${id}`);
   };
   const handleApplyFilter = () => {
-    getUserListingData();
-    setPopoverOpen(false);
+    if (filter) {
+      getUserListingData();
+      setPopoverOpen(false);
+    } else {
+      Notifications("error", "No selected role");
+    }
   };
-  const handleResetFilter =async () => {
-    setLoading(true)
+  const handleResetFilter = async () => {
+    setLoading(true);
     setFilter("");
-  await  dispatch(
-      fetchUsers({
-        page: 1,
-        per_page: 10,
-        search: searchValue,
-        filter: "",
-        sort,
-        order_by: orderBy,
-      }) as any
-    );
+    if (filter) {
+      await dispatch(
+        fetchUsers({
+          page: 1,
+          per_page: 10,
+          search: searchValue,
+          filter: "",
+          sort,
+          order_by: orderBy,
+        }) as any
+      );
+    }
+    setOrderBy("asc");
     setLoading(false);
     setPopoverOpen(false);
     setRowsPerPage(10);
@@ -235,7 +249,7 @@ const Dashboard = () => {
           <div className="relative inline-block">
             <button
               className="bg-blue-600 text-white rounded-md p-2"
-              onClick={() => setPopoverOpen(!isPopoverOpen)}
+              onClick={() => setPopoverOpen(true)}
             >
               <Filter size={18} />
             </button>
@@ -243,6 +257,7 @@ const Dashboard = () => {
             {isPopoverOpen && (
               <Popup
                 selectedRole={filter}
+                closePopup={() => setPopoverOpen(false)}
                 setSelectedRole={setFilter}
                 handleApplyFilter={handleApplyFilter}
                 handleResetFilter={handleResetFilter}
@@ -277,11 +292,13 @@ const Dashboard = () => {
             <thead className=" bg-teal-800 text-white sticky top-0">
               <tr>
                 <th className="py-3 px-4 text-left">
-                  {users?.length > 0 &&<input
-                    type="checkbox"
-                    onChange={handleSelectAll}
-                    checked={selectedUsers.length === users.length}
-                  />}
+                  {users?.length > 0 && (
+                    <input
+                      type="checkbox"
+                      onChange={handleSelectAll}
+                      checked={selectedUsers.length === users.length}
+                    />
+                  )}
                 </th>
                 <th
                   className="py-3 px-4 text-left cursor-pointer"
@@ -316,23 +333,14 @@ const Dashboard = () => {
                 <th className="py-3 px-4 text-center">Actions</th>
               </tr>
             </thead>
-
-            {/* {loading && (
-            <div className="absolute top-10 left-0 w-full h-2 bg-gray-300 overflow-hidden">
-              <div
-                className="h-full bg-blue-500 transition-all duration-300"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          )} */}
             <tbody>
-              {loading &&
+              {loading && (
                 <tr>
                   <td colSpan={8}>
                     <InfiniteProgressBar />
                   </td>
                 </tr>
-              }
+              )}
               {users?.map((user: User | any, index: number) => (
                 <tr key={index} className="border-b border-gray-200">
                   <td className="py-3 px-4">
@@ -377,12 +385,14 @@ const Dashboard = () => {
         </div>
       </div>
       <div className="flex items-end  mt-4 justify-end">
-        <Pagination
-          totalItems={totalRecord}
-          rowsPerPage={rowsPerPage}
-          handleChangeRowsPerPage={handleChangeRowsPerPage}
-          onPageChange={handleChangePage}
-        />
+        {users?.length > 0 && (
+          <Pagination
+            totalItems={totalRecord}
+            rowsPerPage={rowsPerPage}
+            handleChangeRowsPerPage={handleChangeRowsPerPage}
+            onPageChange={handleChangePage}
+          />
+        )}
       </div>
       <div>
         <DeleteModal
