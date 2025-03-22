@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Eye,
   Pencil,
@@ -25,6 +25,7 @@ import ViewUserModal from "../../common/Modal/ViewUserModal";
 import { exportCsvFile } from "../../services/action/user";
 import InfiniteProgressBar from "../../common/PogressBar/pogress";
 import { Notifications } from "../../utils/notification";
+import { debounce } from "../../utils/debounce";
 
 type DeleteId = {
   id: string[];
@@ -69,17 +70,16 @@ const Dashboard = () => {
     type: "",
   });
   const [orderBy, setOrderBy] = useState<string>("asc");
-  // const [rowsPerPage, setRowsPerPage] = useState(10);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   useEffect(() => {
     getUserListingData();
-  }, [dispatch, currentPage, rowsPerPage, searchValue, sort, orderBy]);
+  }, [dispatch, currentPage, rowsPerPage, sort, orderBy]);
 
   useEffect(() => {
-    dispatch(fetchRoles({ page: currentPage, per_page: 10 }) as any);
-  }, [dispatch, currentPage]);
+    dispatch(fetchRoles({ page: 1, per_page: 10 }) as any);
+  }, []);
 
   const encodeValueFilter = (id: string) => {
     const data = { role_id: [id] };
@@ -102,6 +102,30 @@ const Dashboard = () => {
     );
     setLoading(false);
   };
+
+  const SearchTable = async (
+    value: string,
+    currentPage: number,
+    rowsPerPage: number,
+    filter: string,
+    sort: string,
+    orderBy: string
+  ) => {
+    setLoading(true);
+    await dispatch(
+      fetchUsers({
+        page: currentPage,
+        per_page: rowsPerPage,
+        search: value,
+        filter: filter ? encodeValueFilter(filter) : "",
+        sort,
+        order_by: orderBy,
+      }) as any
+    );
+    setLoading(false);
+  };
+
+  const handleSearchValue = useCallback(debounce(SearchTable, 1000), []);
 
   const handleSort = (field: string) => {
     if (sort === field) {
@@ -212,10 +236,10 @@ const Dashboard = () => {
 
   const handleExport = async () => {
     exportCsvFile({
-      page: 1,
-      per_page: 10,
+      page: currentPage,
+      per_page: rowsPerPage,
       search: searchValue,
-      filter: "",
+      filter: filter ? encodeValueFilter(filter) : "",
       sort,
       order_by: orderBy,
     }).then((response) => {
@@ -240,7 +264,17 @@ const Dashboard = () => {
             type="text"
             placeholder="Search"
             value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
+            onChange={(e) => {
+              handleSearchValue(
+                e.target.value,
+                currentPage,
+                rowsPerPage,
+                filter,
+                sort,
+                orderBy
+              );
+              setSearchValue(e.target.value);
+            }}
             className="border-none focus:ring-0 focus:outline-none w-full"
           />
         </div>
@@ -341,45 +375,55 @@ const Dashboard = () => {
                   </td>
                 </tr>
               )}
-              {users?.map((user: User | any, index: number) => (
-                <tr key={index} className="border-b border-gray-200">
-                  <td className="py-3 px-4">
-                    <input
-                      type="checkbox"
-                      checked={selectedUsers.includes(user.id)}
-                      onChange={() => handleSelectUser(user.id)}
-                    />
-                  </td>
-                  <td className="py-3 px-4">{user?.name}</td>
-                  <td className="py-3 px-4">{user?.email}</td>
-                  <td className="py-3 px-4">{user?.role?.name}</td>
-                  <td className="py-3 px-4">{user?.dob}</td>
-                  <td className="py-3 px-4">{user?.gender_text}</td>
-                  <td
-                    className={`py-3 px-4 ${
-                      user.status_text === "Active"
-                        ? "text-green-500"
-                        : "text-red-500"
-                    }`}
-                  >
-                    {user.status_text}
-                  </td>
-                  <td className="py-3 px-4 flex justify-center space-x-2">
-                    <Eye
-                      className="text-gray-500 cursor-pointer"
-                      onClick={() => handelViewUser(user)}
-                    />
-                    <Pencil
-                      className="text-gray-500 cursor-pointer"
-                      onClick={() => handleEditUser(user.id)}
-                    />
-                    <Trash
-                      className="text-gray-500 cursor-pointer"
-                      onClick={() => singleDeleteData(user.id, "single")}
-                    />
+              {users && users?.length ? (
+                users?.map((user: User | any, index: number) => (
+                  <tr key={index} className="border-b border-gray-200">
+                    <td className="py-3 px-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.includes(user.id)}
+                        onChange={() => handleSelectUser(user.id)}
+                      />
+                    </td>
+                    <td className="py-3 px-4">{user?.name}</td>
+                    <td className="py-3 px-4">{user?.email}</td>
+                    <td className="py-3 px-4">{user?.role?.name}</td>
+                    <td className="py-3 px-4">{user?.dob}</td>
+                    <td className="py-3 px-4">{user?.gender_text}</td>
+                    <td
+                      className={`py-3 px-4 ${
+                        user.status_text === "Active"
+                          ? "text-green-500"
+                          : "text-red-500"
+                      }`}
+                    >
+                      {user.status_text}
+                    </td>
+                    <td className="py-3 px-4 flex justify-center space-x-2">
+                      <Eye
+                        className="text-gray-500 cursor-pointer"
+                        onClick={() => handelViewUser(user)}
+                      />
+                      <Pencil
+                        className="text-gray-500 cursor-pointer"
+                        onClick={() => handleEditUser(user.id)}
+                      />
+                      <Trash
+                        className="text-gray-500 cursor-pointer"
+                        onClick={() => singleDeleteData(user.id, "single")}
+                      />
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={8}>
+                    <div className="flex justify-center">
+                      <div>NO RECORD FOUND</div>
+                    </div>
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
